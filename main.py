@@ -104,9 +104,12 @@ def send_email(prices):
     sender_email = os.environ.get('SENDER_EMAIL')
     sender_pwd = os.environ.get('SENDER_PWD')
     receiver_emails_str = os.environ.get('RECEIVER_EMAIL')
-    smtp_host = os.environ.get('SMTP_HOST', 'smtp.qq.com')
+    smtp_host = os.environ.get('SMTP_HOST', '')
     smtp_port_str = os.environ.get('SMTP_PORT', '465')
     smtp_port = int(smtp_port_str) if smtp_port_str and smtp_port_str.strip() else 465
+
+    if not smtp_host or not smtp_host.strip():
+        smtp_host = 'smtp.qq.com'
 
     if not all([sender_email, sender_pwd, receiver_emails_str]):
         print("邮箱配置不完整")
@@ -121,6 +124,7 @@ def send_email(prices):
         print(f"连接 SMTP: {smtp_host}:{smtp_port}")
         import yagmail
         yag = yagmail.SMTP(sender_email, sender_pwd, host=smtp_host, port=smtp_port)
+        yag.connect()
 
         today = datetime.now().strftime('%Y年%m月%d日')
         subject = f"📊 金属价格日报 - {today}"
