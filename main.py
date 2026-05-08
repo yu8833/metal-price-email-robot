@@ -124,7 +124,6 @@ def send_email(prices):
         print(f"连接 SMTP: {smtp_host}:{smtp_port}")
         import yagmail
         yag = yagmail.SMTP(sender_email, sender_pwd, host=smtp_host, port=smtp_port)
-        yag.connect()
 
         today = datetime.now().strftime('%Y年%m月%d日')
         subject = f"📊 金属价格日报 - {today}"
