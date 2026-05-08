@@ -105,14 +105,29 @@ def get_metal_prices():
 def send_email(prices):
     sender_email = os.environ.get('SENDER_EMAIL')
     sender_pwd = os.environ.get('SENDER_PWD')
-    receiver_email = os.environ.get('RECEIVER_EMAIL')
+    receiver_emails_str = os.environ.get('RECEIVER_EMAIL')
+    smtp_host = os.environ.get('SMTP_HOST', 'smtp.qq.com')
+    smtp_port = int(os.environ.get('SMTP_PORT', '587'))
     
-    if not all([sender_email, sender_pwd, receiver_email]):
+    if not all([sender_email, sender_pwd, receiver_emails_str]):
         print("邮箱配置不完整")
+        print(f"SENDER_EMAIL: {'已配置' if sender_email else '未配置'}")
+        print(f"SENDER_PWD: {'已配置' if sender_pwd else '未配置'}")
+        print(f"RECEIVER_EMAIL: {'已配置' if receiver_emails_str else '未配置'}")
+        return False
+    
+    receiver_emails = [email.strip() for email in receiver_emails_str.split(',') if email.strip()]
+    
+    if not receiver_emails:
+        print("接收邮箱列表为空")
         return False
     
     try:
-        yag = yagmail.SMTP(sender_email, sender_pwd, host='smtp.gmail.com', port=587)
+        print(f"尝试连接 SMTP 服务器: {smtp_host}:{smtp_port}")
+        print(f"发送邮箱: {sender_email}")
+        print(f"接收邮箱列表: {', '.join(receiver_emails)}")
+        print(f"共 {len(receiver_emails)} 个收件人")
+        yag = yagmail.SMTP(sender_email, sender_pwd, host=smtp_host, port=smtp_port)
         
         today = datetime.now().strftime('%Y年%m月%d日')
         subject = f"📊 金属价格日报 - {today}"
@@ -146,8 +161,8 @@ def send_email(prices):
         如有疑问请联系管理员
         """
         
-        yag.send(receiver_email, subject, body)
-        print("邮件发送成功")
+        yag.send(receiver_emails, subject, body)
+        print(f"邮件发送成功，共发送给 {len(receiver_emails)} 个收件人")
         return True
     except Exception as e:
         print(f"邮件发送失败: {e}")
