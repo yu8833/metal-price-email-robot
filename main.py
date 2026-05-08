@@ -105,7 +105,8 @@ def send_email(prices):
     sender_pwd = os.environ.get('SENDER_PWD')
     receiver_emails_str = os.environ.get('RECEIVER_EMAIL')
     smtp_host = os.environ.get('SMTP_HOST', 'smtp.qq.com')
-    smtp_port = int(os.environ.get('SMTP_PORT', '465'))
+    smtp_port_str = os.environ.get('SMTP_PORT', '465')
+    smtp_port = int(smtp_port_str) if smtp_port_str and smtp_port_str.strip() else 465
 
     if not all([sender_email, sender_pwd, receiver_emails_str]):
         print("邮箱配置不完整")
